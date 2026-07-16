@@ -4,8 +4,7 @@ import socket from '../socket/socket';
 import Editor from '../components/Editor';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
-import AIPanel from '../components/AIPanel';
-import OutputPanel from '../components/OutputPanel';
+import TerminalComponent from '../components/Terminal';
 import axios from 'axios';
 
 function RoomPage() {
@@ -106,26 +105,8 @@ function RoomPage() {
         navigator.clipboard.writeText(roomId);
     };
 
-    const handleRunCode = async () => {
-        try {
-            setShowOutput(true);
-            setOutputLoading(true);
-            setOutput('');
-            setOutputError(false);
-
-            const res = await axios.post('http://localhost:5000/api/execute/run', {
-                code,
-                language
-            });
-
-            setOutput(res.data.output);
-            setOutputError(!!res.data.error);
-        } catch (err) {
-            setOutput('Execution failed — server error');
-            setOutputError(true);
-        } finally {
-            setOutputLoading(false);
-        }
+    const handleRunCode = () => {
+       setShowOutput(true);
     };
 
     return (
@@ -152,10 +133,9 @@ function RoomPage() {
                         onChange={handleCodeChange}
                     />
                     {showOutput && (
-                        <OutputPanel
-                            output={output}
-                            error={outputError}
-                            loading={outputLoading}
+                        <TerminalComponent
+                            code={code}
+                            language={language}
                             onClose={() => setShowOutput(false)}
                         />
                     )}
@@ -167,13 +147,6 @@ function RoomPage() {
                         username={username}
                         users={users}
                         onSendMessage={handleSendMessage}
-                    />
-                )}
-
-                {showSidebar && (
-                    <AIPanel
-                        code={code}
-                        language={language}
                     />
                 )}
 

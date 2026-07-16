@@ -1,5 +1,6 @@
 const Room = require('../models/Room');
 const { transform } = require('../ot/ot');
+const terminalHandler = require('./terminalHandler');
 
 module.exports = (io) => {
 
@@ -75,8 +76,15 @@ module.exports = (io) => {
       });
     });
 
+    // Terminal handler
+    terminalHandler(io, socket);
+
     // Handle disconnect
     socket.on('disconnect', () => {
+      // Kill docker process if running
+      if (socket.dockerProcess && !socket.dockerProcess.killed) {
+        socket.dockerProcess.kill();
+      } 
       if (socket.roomId) {
         socket.to(socket.roomId).emit('user-left', {
           username: socket.username
