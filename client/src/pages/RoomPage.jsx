@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import socket from '../socket/socket';
 import Editor from '../components/Editor';
@@ -12,6 +12,7 @@ function RoomPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const username = location.state?.username;
+    const terminalRef = useRef(null);
 
     const [code, setCode] = useState('// Start coding here...');
     const [language, setLanguage] = useState('javascript');
@@ -106,7 +107,8 @@ function RoomPage() {
     };
 
     const handleRunCode = () => {
-       setShowOutput(true);
+        setShowOutput(true);
+        terminalRef.current?.run();
     };
 
     return (
@@ -132,13 +134,14 @@ function RoomPage() {
                         language={language}
                         onChange={handleCodeChange}
                     />
-                    {showOutput && (
+                    <div className={showOutput ? "block" : "hidden"}>
                         <TerminalComponent
+                            ref={terminalRef}
                             code={code}
                             language={language}
                             onClose={() => setShowOutput(false)}
                         />
-                    )}
+                    </div>
                 </div>
 
                 {showSidebar && (

@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const pty = require('node-pty');
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -36,7 +36,6 @@ module.exports = (io, socket) => {
       return;
     }
 
-    // Temp folder banao
     const execId = uuidv4();
     const tmpDir = path.join(os.tmpdir(), execId);
     const codeFile = path.join(tmpDir, config.filename);
@@ -44,16 +43,15 @@ module.exports = (io, socket) => {
     fs.mkdirSync(tmpDir, { recursive: true });
     fs.writeFileSync(codeFile, code);
 
-    // Windows path fix
     const dockerPath = tmpDir.replace(/\\/g, '/').replace('C:', '/c');
 
-    socket.emit('terminal-output', `\r\n$ Running ${language} code...\r\n\r\n`);
+    socket.emit('terminal-output', `\r\n\x1b[1;35m$ Running ${language} code...\x1b[0m\r\n\r\n`);
 
-    // Spawn interactive docker process
-    const docker = spawn('docker', [
+    // node-pty se terminal spawn karo
+    const ptyProcess = pty.spawn('docker', [
       'run',
       '--rm',
-      '-i',
+      '-it',
       '--memory=128m',
       '--cpus=0.5',
       '--network=none',
@@ -61,53 +59,55 @@ module.exports = (io, socket) => {
       '-w', '/code',
       config.image,
       'sh', '-c', config.command
-    ]);
-
-    // Store process on socket for cleanup
-    socket.dockerProcess = docker;
-
-    // Send output to terminal
-    docker.stdout.on('data', (data) => {
-      socket.emit('terminal-output', data.toString());
+    ], {
+      name: 'xterm-color',
+      cols: 80,
+      rows: 24,
+      cwd: process.env.HOME,
+      env: process.env
     });
 
-    docker.stderr.on('data', (data) => {
-      socket.emit('terminal-output', data.toString());
+    socket.ptyProcess = ptyProcess;
+
+    // Output frontend ko bhejo
+    ptyProcess.onData((data) => {
+      socket.emit('terminal-output', data);
     });
 
-    docker.on('close', (code) => {
+    ptyProcess.onExit(({ exitCode }) => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
-      socket.emit('terminal-output', `\r\n$ Process exited with code ${code}\r\n`);
+      socket.emit('terminal-output', `\r\n\x1b[90m$ Process exited with code ${exitCode}\x1b[0m\r\n`);
       socket.emit('terminal-done');
-      socket.dockerProcess = null;
+      socket.ptyProcess = null;
     });
 
-    docker.on('error', (err) => {
-      socket.emit('terminal-output', `\r\nError: ${err.message}\r\n`);
-    });
-
-    // Timeout — 30 seconds
+    // Timeout 30 seconds
     setTimeout(() => {
-      if (socket.dockerProcess) {
-        socket.dockerProcess.kill();
-        socket.emit('terminal-output', '\r\nTimeout: Process killed after 30 seconds\r\n');
+      if (socket.ptyProcess) {
+        socket.ptyProcess.kill();
+        socket.emit('terminal-output', '\r\n\x1b[91mTimeout: Process killed\x1b[0m\r\n');
       }
     }, 30000);
   });
 
-  // User ne input diya
+  // User input — seedha pty mein likho
   socket.on('terminal-input', ({ input }) => {
-    if (socket.dockerProcess) {
-      socket.dockerProcess.stdin.write(input + "\n");
+    if (socket.ptyProcess) {
+      socket.ptyProcess.write(input);
     }
   });
 
-  // Terminal band karo
+  // Terminal resize
+  socket.on('terminal-resize', ({ cols, rows }) => {
+    if (socket.ptyProcess) {
+      socket.ptyProcess.resize(cols, rows);
+    }
+  });
+
   socket.on('terminal-kill', () => {
-    if (socket.dockerProcess) {
-      socket.dockerProcess.kill();
-      socket.dockerProcess = null;
-      socket.emit('terminal-output', '\r\nProcess killed\r\n');
+    if (socket.ptyProcess) {
+      socket.ptyProcess.kill();
+      socket.ptyProcess = null;
     }
   });
 };
