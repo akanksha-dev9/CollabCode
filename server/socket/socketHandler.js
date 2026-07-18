@@ -51,6 +51,17 @@ module.exports = (io) => {
       );
     });
 
+    // Language change event
+    socket.on('language-change', async ({ roomId, language }) => {
+      // MongoDB mein save karo
+      await Room.findOneAndUpdate(
+        { roomId },
+        { language }
+      );
+      // Doosre users ko broadcast karo
+      socket.to(roomId).emit('language-updated', { language });
+    });
+
     // Handle chat messages
     socket.on('send-message', async ({ roomId, message }) => {
       const chatMessage = {
@@ -84,7 +95,7 @@ module.exports = (io) => {
       // Kill docker process if running
       if (socket.dockerProcess && !socket.dockerProcess.killed) {
         socket.dockerProcess.kill();
-      } 
+      }
       if (socket.roomId) {
         socket.to(socket.roomId).emit('user-left', {
           username: socket.username

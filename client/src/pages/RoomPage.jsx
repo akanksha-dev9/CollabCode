@@ -42,6 +42,11 @@ function RoomPage() {
         socket.on('load-document', ({ code, language }) => {
             setCode(code);
             setLanguage(language);
+            if (chat) setMessages(chat);  // Agar chat history hai toh set karo
+        });
+
+        socket.on('language-updated', ({ language }) => {
+            setLanguage(language);
         });
 
         // Doosre user ne code change kiya
@@ -85,6 +90,7 @@ function RoomPage() {
             socket.off('receive-message');
             socket.off('user-joined');
             socket.off('user-left');
+            socket.off('language-updated');
             socket.disconnect();
         };
     }, [roomId, username, navigate]);
@@ -111,6 +117,11 @@ function RoomPage() {
         terminalRef.current?.run();
     };
 
+    const handleLanguageChange = (newLanguage) => {
+        setLanguage(newLanguage);
+        socket.emit('language-change', { roomId, language: newLanguage });
+    };
+
     return (
         <div className="h-screen bg-[#1e1e2e] flex flex-col overflow-hidden">
 
@@ -118,7 +129,7 @@ function RoomPage() {
                 roomId={roomId}
                 username={username}
                 language={language}
-                setLanguage={setLanguage}
+                setLanguage={handleLanguageChange}
                 users={users}
                 onCopyRoomId={copyRoomId}
                 onToggleSidebar={() => setShowSidebar(!showSidebar)}
