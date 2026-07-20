@@ -43,7 +43,7 @@ function AIPanel({ code, language }) {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-[#181825] border-l border-[#313244]">
+    <div className="w-72 flex flex-col bg-[#181825] border-l border-[#313244]">
 
       {/* Header */}
       <div className="px-4 py-3 border-b border-[#313244]">

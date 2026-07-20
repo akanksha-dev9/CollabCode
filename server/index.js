@@ -5,6 +5,7 @@ const mongoose=require('mongoose');
 const cors=require('cors');
 const roomRoutes = require('./routes/room');
 const executeRoutes = require('./routes/execute');
+const aiRoutes = require("./routes/ai"); // path may differ
 
 require('dotenv').config();
 
@@ -26,6 +27,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/room', roomRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/execute", executeRoutes);
 
 mongoose.connect(process.env.MONGO_URL)
     .then(()=>console.log('MongoDB connected'))

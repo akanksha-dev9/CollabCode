@@ -5,6 +5,7 @@ import Editor from '../components/Editor';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import TerminalComponent from '../components/Terminal';
+import AIPanel from '../components/AIPanel';
 import axios from 'axios';
 
 function RoomPage() {
@@ -165,7 +166,18 @@ function RoomPage() {
                         users={users}
                         onSendMessage={handleSendMessage}
                     />
+
+
                 )}
+
+                {showSidebar && (
+                    <AIPanel
+                        code={code}
+                        language={language}
+                    />
+                )}
+
+
 
             </div>
         </div>
