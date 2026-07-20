@@ -13,6 +13,7 @@ function RoomPage() {
     const navigate = useNavigate();
     const username = location.state?.username;
     const terminalRef = useRef(null);
+    const revisionRef = useRef(0);
 
     const [code, setCode] = useState('// Start coding here...');
     const [language, setLanguage] = useState('javascript');
@@ -42,6 +43,7 @@ function RoomPage() {
         socket.on('load-document', ({ code, language }) => {
             setCode(code);
             setLanguage(language);
+            revisionRef.current = revision || 0;
             if (chat) setMessages(chat);  // Agar chat history hai toh set karo
         });
 
@@ -50,10 +52,11 @@ function RoomPage() {
         });
 
         // Doosre user ne code change kiya
-        socket.on('code-update', ({ operation }) => {
+        socket.on('code-update', ({ operation, revision }) => {
             if (operation?.content !== undefined) {
                 setCode(operation.content);
             }
+            revisionRef.current = revision;
         });
 
         // Users list update
@@ -100,7 +103,7 @@ function RoomPage() {
         socket.emit('code-change', {
             roomId,
             operation: { content: newCode },
-            revision: 0
+            revision: revisionRef.current
         });
     };
 
