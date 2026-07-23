@@ -8,7 +8,7 @@ const roomSchema=new mongoose.Schema({
     },
     code:{
         type: String,
-        default: "Start coding here..."
+        default: "//Start coding here..."
     },
     language:{
         type: String,

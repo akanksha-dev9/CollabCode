@@ -30,6 +30,7 @@ function Navbar({
                     <option value="javascript">JavaScript</option>
                     <option value="cpp">C++</option>
                     <option value="python">Python</option>
+                    <option value="java">Java</option>
                 </select>
 
                 {/* Run Code Button */}
