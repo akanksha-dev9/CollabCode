@@ -127,7 +127,7 @@ function RoomPage() {
     };
 
     return (
-        <div className="h-screen bg-[#1e1e2e] flex flex-col overflow-hidden">
+        <div className="h-screen bg-[#181818] text-[#cccccc] flex flex-col overflow-hidden font-sans">
 
             <Navbar
                 roomId={roomId}
@@ -141,15 +141,15 @@ function RoomPage() {
                 onRunCode={handleRunCode}
             />
 
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden border-t border-[#3c3c3c]">
 
-                <div className="flex flex-col flex-1 overflow-hidden">
+                <div className="flex flex-col flex-1 overflow-hidden bg-[#1e1e1e]">
                     <Editor
                         code={code}
                         language={language}
                         onChange={handleCodeChange}
                     />
-                    <div className={showOutput ? "block" : "hidden"}>
+                    <div className={showOutput ? "block border-t border-[#3c3c3c] bg-[#181818]" : "hidden"}>
                         <TerminalComponent
                             ref={terminalRef}
                             code={code}
@@ -166,8 +166,6 @@ function RoomPage() {
                         users={users}
                         onSendMessage={handleSendMessage}
                     />
-
-
                 )}
 
                 {showSidebar && (
@@ -176,8 +174,6 @@ function RoomPage() {
                         language={language}
                     />
                 )}
-
-
 
             </div>
         </div>

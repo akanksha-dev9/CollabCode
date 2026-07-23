@@ -76,7 +76,7 @@ function Editor({ code, language, onChange }) {
   }, [code]);
 
   return (
-    <div className="flex-1 overflow-hidden bg-[#1e1e2e]">
+    <div className="flex-1 h-full w-full overflow-hidden bg-[#1e1e1e]">
       <MonacoEditor
         height="100%"
         language={getMonacoLanguage(language)}

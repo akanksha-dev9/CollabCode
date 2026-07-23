@@ -25,12 +25,12 @@ const TerminalComponent = forwardRef(({ code, language, onClose }, ref) => {
     const term = new Terminal({
       cursorBlink: true,
       theme: {
-        background: '#0d0d0d',
-        foreground: '#cdd6f4',
-        cursor: '#cba6f7',
+        background: '#181818',
+        foreground: '#cccccc',
+        cursor: '#007acc',
       },
-      fontSize: 14,
-      fontFamily: '"Cascadia Code", "Fira Code", monospace',
+      fontSize: 13,
+      fontFamily: '"Fira Code", "Cascadia Code", monospace',
       rows: 12,
       cols: 80,
     });
@@ -43,8 +43,8 @@ const TerminalComponent = forwardRef(({ code, language, onClose }, ref) => {
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
 
-    term.writeln('\x1b[1;35mCollabCode Terminal\x1b[0m');
-    term.writeln('\x1b[90mPress Run to execute code\x1b[0m');
+    term.writeln('\x1b[1;36m<CollabCode Terminal />\x1b[0m');
+    term.writeln('\x1b[90mPress Run Code to execute...\x1b[0m');
 
     // Har keypress seedha server ko bhejo — pty handle karega
     term.onData((data) => {
@@ -78,18 +78,18 @@ const TerminalComponent = forwardRef(({ code, language, onClose }, ref) => {
   }, []);
 
   return (
-    <div className="h-64 bg-[#0d0d0d] border-t border-[#313244] flex flex-col">
-      <div className="flex items-center gap-3 px-4 py-1 bg-[#181825] border-b border-[#313244]">
-        <span className="text-[#cba6f7] text-xs font-semibold uppercase tracking-wider">Terminal</span>
+    <div className="h-64 bg-[#181818] border-t border-[#3c3c3c] flex flex-col font-mono antialiased">
+      <div className="flex items-center gap-3 px-4 py-1.5 bg-[#1e1e1e] border-b border-[#3c3c3c]">
+        <span className="text-[#007acc] text-xs font-bold tracking-wide uppercase">Terminal</span>
         <div className="flex-1" />
         <button
           onClick={onClose}
-          className="text-[#6c7086] hover:text-[#cdd6f4] text-xs transition-colors"
+          className="text-[#858585] hover:text-[#cccccc] text-xs transition-colors cursor-pointer"
         >
           ✕
         </button>
       </div>
-      <div ref={terminalRef} className="flex-1 overflow-hidden" />
+      <div ref={terminalRef} className="flex-1 overflow-hidden p-2" />
     </div>
   );
 });
