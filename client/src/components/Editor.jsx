@@ -1,101 +1,91 @@
 import { useEffect, useRef } from 'react';
-import { EditorState } from '@codemirror/state';
-import { EditorView, keymap, lineNumbers, highlightActiveLine } from '@codemirror/view';
-import { defaultKeymap, indentWithTab } from '@codemirror/commands';
-import { javascript } from '@codemirror/lang-javascript';
-import { cpp } from '@codemirror/lang-cpp';
-import { python } from '@codemirror/lang-python';
-import { oneDark } from '@codemirror/theme-one-dark';
+import MonacoEditor from '@monaco-editor/react';
 
-function getLanguageExtension(language) {
+function getMonacoLanguage(language) {
   switch (language) {
-    case 'javascript': return javascript();
-    case 'cpp': return cpp();
-    case 'python': return python();
-    default: return javascript();
+    case 'javascript':
+      return 'javascript';
+    case 'cpp':
+      return 'cpp';
+    case 'python':
+      return 'python';
+    default:
+      return 'javascript';
   }
 }
 
+const editorOptions = {
+  fontSize: 14,
+  fontFamily: '"Fira Code", "Cascadia Code", monospace',
+  lineNumbers: 'on',
+  renderLineHighlight: 'line',
+  automaticLayout: true,
+  tabSize: 2,
+  insertSpaces: true,
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  padding: { top: 16 },
+
+  // Autocomplete / IntelliSense
+  quickSuggestions: {
+    other: true,
+    comments: false,
+    strings: true,
+  },
+  suggestOnTriggerCharacters: true,
+  acceptSuggestionOnEnter: 'on',
+  tabCompletion: 'on',
+  wordBasedSuggestions: 'currentDocument',
+  parameterHints: { enabled: true },
+  suggest: {
+    showKeywords: true,
+    showSnippets: true,
+    showClasses: true,
+    showFunctions: true,
+    showVariables: true,
+    showMethods: true,
+    preview: true,
+    insertMode: 'insert',
+  },
+};
+
 function Editor({ code, language, onChange }) {
   const editorRef = useRef(null);
-  const viewRef = useRef(null);
   const isRemoteChange = useRef(false);
 
+  const handleMount = (editor) => {
+    editorRef.current = editor;
+  };
+
+  const handleChange = (value) => {
+    if (isRemoteChange.current) return;
+    onChange(value ?? '');
+  };
+
+  // Remote code change — same behavior as CodeMirror
   useEffect(() => {
-    if (!editorRef.current) return;
+    const editor = editorRef.current;
+    if (!editor) return;
 
-    // Editor destroy karo agar pehle se tha
-    if (viewRef.current) {
-      viewRef.current.destroy();
-    }
-
-    const state = EditorState.create({
-      doc: code,
-      extensions: [
-        lineNumbers(),
-        highlightActiveLine(),
-        keymap.of([...defaultKeymap, indentWithTab]),
-        getLanguageExtension(language),
-        oneDark,
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged && !isRemoteChange.current) {
-            const newCode = update.state.doc.toString();
-            onChange(newCode);
-          }
-        }),
-        EditorView.theme({
-          '&': {
-            height: '100%',
-            fontSize: '14px',
-          },
-          '.cm-scroller': {
-            overflow: 'auto',
-            fontFamily: '"Fira Code", "Cascadia Code", monospace',
-          },
-          '.cm-content': {
-            padding: '16px 0',
-          }
-        })
-      ]
-    });
-
-    const view = new EditorView({
-      state,
-      parent: editorRef.current
-    });
-
-    viewRef.current = view;
-
-    return () => {
-      view.destroy();
-    };
-  }, [language]); // language change hone pe editor rebuild hoga
-
-  // Remote code change aane pe editor update karo
-  useEffect(() => {
-    if (!viewRef.current) return;
-
-    const currentCode = viewRef.current.state.doc.toString();
-
-    // Agar code same hai toh update mat karo — infinite loop bachao
+    const currentCode = editor.getValue();
     if (currentCode === code) return;
 
     isRemoteChange.current = true;
-
-    viewRef.current.dispatch({
-      changes: {
-        from: 0,
-        to: currentCode.length,
-        insert: code
-      }
-    });
-
+    editor.setValue(code);
     isRemoteChange.current = false;
   }, [code]);
 
   return (
-    <div className="flex-1 overflow-hidden bg-[#1e1e2e]">
-      <div ref={editorRef} className="h-full" />
+    <div className="flex-1 h-full w-full overflow-hidden bg-[#1e1e1e]">
+      <MonacoEditor
+        height="100%"
+        language={getMonacoLanguage(language)}
+        theme="vs-dark"
+        defaultValue={code}
+        onChange={handleChange}
+        onMount={handleMount}
+        options={editorOptions}
+      />
     </div>
   );
 }

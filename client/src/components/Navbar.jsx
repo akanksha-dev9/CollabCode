@@ -1,71 +1,93 @@
+import { useState } from 'react';
+
 function Navbar({
     roomId, username, language, setLanguage,
     users, onCopyRoomId, onToggleSidebar, showSidebar, onRunCode
 }) {
-    return (
-        <div className="bg-[#181825] border-b border-[#313244] px-4 py-2 flex items-center justify-between">
+    const [isCopied, setIsCopied] = useState(false);
 
-            {/* Left — Logo */}
-            <div className="flex items-center gap-3">
-                <h1 className="text-[#cba6f7] font-bold text-lg">CollabCode</h1>
+    const handleCopyClick = () => {
+        onCopyRoomId();
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 1500);
+    };
+
+    return (
+        <div className="bg-[#1e1e1e] border-b border-[#3c3c3c] px-5 py-3 flex items-center justify-between font-mono antialiased">
+
+            {/* Left — Logo, Language Picker & Run Code Button */}
+            <div className="flex items-center gap-4">
+                <h1 className="text-[#007acc] font-bold text-lg tracking-tight font-mono">
+                    &lt;CollabCode /&gt;
+                </h1>
 
                 {/* Language selector */}
                 <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="bg-[#313244] text-[#cdd6f4] text-sm border border-[#45475a] rounded px-2 py-1 outline-none"
+                    className="bg-[#252526] text-[#cccccc] text-sm font-sans border border-[#3c3c3c] rounded px-3 py-1.5 outline-none focus:border-[#007acc] transition-colors cursor-pointer"
                 >
                     <option value="javascript">JavaScript</option>
                     <option value="cpp">C++</option>
                     <option value="python">Python</option>
+                    <option value="java">Java</option>
                 </select>
-            </div>
 
-            <button
-                onClick={onRunCode}
-                className="bg-[#a6e3a1] text-[#1e1e2e] text-sm font-semibold px-3 py-1 rounded hover:bg-[#94d49a] transition-colors"
-            >
-                ▶ Run
-            </button>
-
-            {/* Center — Room ID */}
-            <div className="flex items-center gap-2">
-                <span className="text-[#6c7086] text-xs">Room:</span>
-                <span className="text-[#cdd6f4] text-sm font-mono bg-[#313244] px-3 py-1 rounded">
-                    {roomId}
-                </span>
+                {/* Run Code Button */}
                 <button
-                    onClick={onCopyRoomId}
-                    className="text-xs text-[#cba6f7] hover:text-[#b794f4] transition-colors"
+                    onClick={onRunCode}
+                    className="bg-[#0e639c] hover:bg-[#1177bb] text-white text-sm font-medium font-sans px-4 py-1.5 rounded transition-all flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer"
                 >
-                    Copy
+                    ▶ Run Code
                 </button>
             </div>
 
-            {/* Right — Users + Sidebar toggle */}
-            <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
+            {/* Center — Room Info (Original font family kept, size increased) */}
+            <div className="flex items-center gap-3 font-sans">
+                <span className="text-[#858585] text-sm">// Room:</span>
+                
+                <span 
+                    className={`text-sm font-normal bg-[#252526] border px-3 py-0.5 rounded transition-colors duration-300 ${
+                        isCopied 
+                            ? 'text-[#007acc] border-[#007acc]' 
+                            : 'text-[#cccccc] border-[#3c3c3c]'
+                    }`}
+                >
+                    {roomId}
+                </span>
+                
+                <button
+                    onClick={handleCopyClick}
+                    className="text-sm text-[#007acc] hover:text-[#1177bb] transition-colors font-medium cursor-pointer"
+                >
+                    {isCopied ? 'Copied' : 'Copy'}
+                </button>
+            </div>
+
+            {/* Right — Active Users & Chat Toggle */}
+            <div className="flex items-center gap-4 font-sans">
+                <div className="flex items-center gap-1.5">
                     {users.slice(0, 3).map((user, i) => (
                         <div
                             key={i}
                             title={user.username}
-                            className="w-7 h-7 rounded-full bg-[#cba6f7] flex items-center justify-center text-[#1e1e2e] text-xs font-bold"
+                            className="w-7 h-7 rounded-full bg-[#007acc] border border-[#3c3c3c] flex items-center justify-center text-white text-xs font-bold shadow-sm"
                         >
                             {user.username?.[0]?.toUpperCase()}
                         </div>
                     ))}
                     {users.length > 3 && (
-                        <span className="text-[#6c7086] text-xs">+{users.length - 3}</span>
+                        <span className="text-[#858585] text-xs font-mono">+{users.length - 3}</span>
                     )}
                 </div>
 
-                <span className="text-[#a6adc8] text-sm">{username}</span>
+                <span className="text-[#cccccc] text-sm font-mono font-medium">{username}</span>
 
                 <button
                     onClick={onToggleSidebar}
-                    className="text-sm text-[#6c7086] hover:text-[#cdd6f4] transition-colors border border-[#45475a] px-2 py-1 rounded"
+                    className="text-xs text-[#cccccc] hover:text-white bg-[#252526] hover:bg-[#333333] border border-[#3c3c3c] px-3 py-1.5 rounded transition-colors font-medium cursor-pointer"
                 >
-                    {showSidebar ? 'Hide Chat' : 'Show Chat'}
+                    {showSidebar ? 'Hide Panel' : 'Show Panel'}
                 </button>
             </div>
 

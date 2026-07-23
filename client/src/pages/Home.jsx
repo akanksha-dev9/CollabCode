@@ -50,65 +50,97 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1e1e2e] flex items-center justify-center px-4">
-      <div className="bg-[#313244] rounded-2xl p-10 w-full max-w-md shadow-2xl flex flex-col gap-4">
-
-        {/* Header */}
-        <div className="text-center mb-2">
-          <h1 className="text-4xl font-bold text-[#cba6f7]">CollabCode</h1>
-          <p className="text-sm text-[#a6adc8] mt-1">Real-time collaborative code editor</p>
+    <div className="min-h-screen bg-[#181818] text-[#cccccc] flex items-center justify-center p-4 font-mono antialiased">
+      <div className="w-full max-w-md bg-[#252526] border border-[#3c3c3c] rounded-xl shadow-2xl overflow-hidden">
+        
+        {/* Terminal Header Bar */}
+        <div className="bg-[#1e1e1e] px-4 py-3 border-b border-[#3c3c3c] flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#ff5f56] inline-block" />
+            <span className="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block" />
+            <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block" />
+          </div>
+          <span className="text-xs text-[#858585]">collabcode ~ terminal</span>
         </div>
 
-        {/* Error */}
-        {error && (
-          <p className="text-[#f38ba8] text-sm text-center bg-[#f38ba8]/10 py-2 rounded-lg">
-            {error}
-          </p>
-        )}
+        <div className="p-8 flex flex-col gap-6">
 
-        {/* Username Input */}
-        <input
-          type="text"
-          placeholder="Enter your username"
-          value={username}
-          onChange={(e) => { setUsername(e.target.value); setError(''); }}
-          className="bg-[#1e1e2e] text-[#cdd6f4] placeholder-[#6c7086] border border-[#45475a] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#cba6f7] transition-colors"
-        />
+          {/* Title */}
+          <div className="text-center">
+            <h1 className="text-3xl font-extrabold text-[#007acc] tracking-tight">
+              &lt;CollabCode /&gt;
+            </h1>
+            <p className="text-xs text-[#858585] mt-1.5 font-sans">
+              Real-time collaborative code editor
+            </p>
+          </div>
 
-        {/* Create Room Button */}
-        <button
-          onClick={createRoom}
-          disabled={loading}
-          className="bg-[#cba6f7] text-[#1e1e2e] font-semibold py-3 rounded-lg hover:bg-[#b794f4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Creating...' : 'Create New Room'}
-        </button>
+          {/* Error Message */}
+          {error && (
+            <div className="bg-[#f14c4c]/10 border border-[#f14c4c]/30 text-[#f14c4c] text-xs font-sans p-3 rounded-md text-center">
+              ⚠ {error}
+            </div>
+          )}
 
-        {/* Divider */}
-        <div className="flex items-center gap-3 my-1">
-          <div className="flex-1 h-px bg-[#45475a]"/>
-          <span className="text-[#6c7086] text-xs">or join existing room</span>
-          <div className="flex-1 h-px bg-[#45475a]"/>
+          {/* Form */}
+          <div className="flex flex-col gap-4 font-sans">
+            
+            {/* Username Input */}
+            <div>
+              <label className="text-xs text-[#858585] mb-1 block font-mono">
+                // USERNAME
+              </label>
+              <input
+                type="text"
+                placeholder="Enter username..."
+                value={username}
+                onChange={(e) => { setUsername(e.target.value); setError(''); }}
+                className="w-full bg-[#1e1e1e] text-[#cccccc] placeholder-[#555555] border border-[#3c3c3c] rounded-md px-3.5 py-2.5 text-sm outline-none focus:border-[#007acc] transition-colors"
+              />
+            </div>
+
+            {/* Create Button */}
+            <button
+              onClick={createRoom}
+              disabled={loading}
+              className="w-full bg-[#0e639c] hover:bg-[#1177bb] text-white font-medium py-2.5 rounded-md text-sm transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+            >
+              {loading ? 'Creating...' : '+ Create New Room'}
+            </button>
+
+            {/* Separator */}
+            <div className="flex items-center gap-3 my-1">
+              <div className="flex-1 h-px bg-[#3c3c3c]" />
+              <span className="text-[#666666] text-xs font-mono">OR</span>
+              <div className="flex-1 h-px bg-[#3c3c3c]" />
+            </div>
+
+            {/* Room ID Input */}
+            <div>
+              <label className="text-xs text-[#858585] mb-1 block font-mono">
+                // ROOM_ID
+              </label>
+              <input
+                type="text"
+                placeholder="Enter room code..."
+                value={roomId}
+                onChange={(e) => { setRoomId(e.target.value); setError(''); }}
+                className="w-full bg-[#1e1e1e] text-[#cccccc] placeholder-[#555555] border border-[#3c3c3c] rounded-md px-3.5 py-2.5 text-sm outline-none focus:border-[#007acc] transition-colors"
+              />
+            </div>
+
+            {/* Join Button */}
+            <button
+              onClick={joinRoom}
+              disabled={loading}
+              className="w-full bg-[#3c3c3c] hover:bg-[#4a4a4a] text-[#cccccc] font-medium py-2.5 rounded-md text-sm border border-[#555555] transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Joining...' : '➔ Join Room'}
+            </button>
+
+          </div>
+
         </div>
-
-        {/* Room ID Input */}
-        <input
-          type="text"
-          placeholder="Enter Room ID"
-          value={roomId}
-          onChange={(e) => { setRoomId(e.target.value); setError(''); }}
-          className="bg-[#1e1e2e] text-[#cdd6f4] placeholder-[#6c7086] border border-[#45475a] rounded-lg px-4 py-3 text-sm outline-none focus:border-[#cba6f7] transition-colors"
-        />
-
-        {/* Join Room Button */}
-        <button
-          onClick={joinRoom}
-          disabled={loading}
-          className="border border-[#cba6f7] text-[#cba6f7] font-semibold py-3 rounded-lg hover:bg-[#cba6f7]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Joining...' : 'Join Room'}
-        </button>
-
       </div>
     </div>
   );
